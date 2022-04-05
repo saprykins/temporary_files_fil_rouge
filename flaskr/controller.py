@@ -100,14 +100,7 @@ def processing_meta_link(document_id):
         meta_data_dictionary["modification_date"] = pdf_item.modification_date
         meta_data_dictionary["creator"] = pdf_item.creator
         meta_data_dictionary["status"] = "succes"
-        #
-        #
-        #
-        # meta_data_dictionary["named_entities"] = pdf_item.named_entities
         meta_data_dictionary["named_entities"] = pdf_item.named_entities
-        #
-        #
-        #
         # meta_data_dictionary['text'] = pdf_item.text
         meta_data_dictionary["file_id"] = pdf_item.file_id
         meta_data_dictionary["link_to_content"] = (

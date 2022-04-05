@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+
+# -------------------------------------
+# IN COMMAND LINE DO THIS
+# python -m spacy download en_core_web_sm
+# -------------------------------------
+
+
+
 """
 Application Entry Point
 that imports and starts our entire app

@@ -5,8 +5,6 @@ Model module that assures work with database
 """
 
 # for verification if upload path exist
-from array import ArrayType
-from multiprocessing.dummy import Array
 import os
 
 # imports to generate file-id
@@ -71,15 +69,8 @@ class Pdf(Base):
     modification_date = Column(String)
     # creator of pdf-file
     creator = Column(String)
-    # list of named entities
-    #
-    #
-    #
-    # from sqlalchemy.dialects.postgresql import ARRAY
+    # string of named entities
     named_entities = Column(String)
-    #
-    #
-    #
     # text inside pdf-file
     text = Column(String)
     # id of pdf file that was saved locally
@@ -159,21 +150,17 @@ def generate_file_id():
 
 def get_text_without_references(text):
     '''
-    Extracts only text, and skips refenreces
+    Extracts only the text that is between "introduction" and "references"
     '''
     try:
-        # find introduction word to avoid searching in introduction
-        # because names from introduction are saved anyway
+        # find the word "introduction"
         introduction_word = 'Introduction'
-        # the first character to cut hte text out
         first_word = text.find(introduction_word)
     except Exception:
         first_word = 0
 
     try:
-        # find reference word to avoid searching in references
-        # because names from references are saved anyway
-        # here we save only named entities from body of the article
+        # find the word "reference"
         reference_word = 'Reference'
         last_word = text.find(reference_word)
         
@@ -186,22 +173,18 @@ def get_text_without_references(text):
 
 def has_numbers(inputString):
     """
-    used to check if a string has a digit
-    and allows to avoid saving lemmas
+    Used to check if a string has a digit in it
     """
     return any(char.isdigit() for char in inputString)
 
 
 def save_named_entities_to_array(text):
-    # to string
     '''
-    Extract named entities from text without references
+    Extract named entities from text to a string
+    It checks that a person name does not contain a digit in it 
+    and that it would be longer then 7 characters
     '''
     list_of_named_entities = ''
-    # nlp = spacy.load()
-    # nlp = spacy.load("en_core_web_sm")
-    # nlp = en_core_web_sm.load()
-    # doc = nlp(text)
 
     nlp = en_core_web_sm.load()
     doc = nlp(text)
@@ -225,7 +208,6 @@ def save_metadata_and_text_to_data_base(doc_id):
     meta_data = extract_metadata_from_pdf(doc_id)
 
     # saves information in database
-    a_line = 'person 1, person 2'
     session.add_all(
         [
             Pdf(
@@ -236,7 +218,6 @@ def save_metadata_and_text_to_data_base(doc_id):
                 named_entities=str(list_of_named_entities),
                 text=doc_text,
                 file_id=doc_id,
-                # named_entities = a_line
             )
         ]
     )
@@ -264,7 +245,8 @@ def extract_text_from_pdf(doc_id):
 def extract_metadata_from_pdf(doc_id):
     """
     Extracts metadata from pdf-file
-    and returns dictionary with metadata inside
+    and returns dictionary with metadata inside. 
+    It does not read the text inside a file, but only metadata
     """
 
     # gets previously saved pdf file locally
@@ -285,14 +267,7 @@ def extract_metadata_from_pdf(doc_id):
                 meta_data["modification_date"] = item["ModDate"].decode("utf-8", "ignore")
                 meta_data["creator"] = item["Creator"].decode("utf-8", "ignore")
                 # meta_data['title'] = item['Title'].decode("utf-8", 'ignore')
-                # meta_data["named_entities"] = item["Named_entities"].decode("utf-8", "ignore")
-                #
-                #
-                #
-    #            meta_data["named_entities"] = "Named_entities"
-                #
-                #
-                #
+
             except Exception:
                 meta_data["author"] = 'not identified'
                 meta_data["creation_date"] = 'not identified'
